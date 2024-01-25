@@ -1,39 +1,33 @@
 
-import {  useState } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { useState, useRef } from 'react';
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { ButtonPicture, ButtonRePicture, Buttons, ImagemPicture, ViewPicture } from './styled';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { RNCamera } from 'react-native-camera';
+import { Ionicons } from '@expo/vector-icons';
 export default function Cam({ route }) {
- 
+  const cameraRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
-
+  const [type, setType] = useState(RNCamera.Constants.Type.back)
   const navigation = useNavigation()
   const { param } = route.params;
 
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      const options = { quality: 0.3, base64: true };
+      const data = await cameraRef.current.takePictureAsync(options);
+      setCapturedImage(data.uri);
+    }
+  };
+
+  function toggleCameraType() {
+    setType(current => (current ===  RNCamera.Constants.Type.back ? CameraType.front : CameraType.back));
+  }
 
 
-  // function toggleCameraType() {
-  //   setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
-  // }
-
-  // const takePicture = async () => {
-  //   if (!cameraRef.current) return
-  //   try {
-  //     const { uri } = await cameraRef.current.takePictureAsync({
-  //       quality: 0.3
-  //     });
-  //     setCapturedImage(uri);
-  //   } catch (error) {
-  //     Alert.alert('Erro', "Erro ao capturar evidência", [
-  //       { text: 'OK' }
-  //     ])
-  //   }
-
-  // };
 
   async function saveImage() {
     const evidenceStorage = {
@@ -61,7 +55,7 @@ export default function Cam({ route }) {
 
   return (
     <View style={styles.container}>
-      {capturedImage && (
+       {capturedImage && (
         <ViewPicture >
           <ImagemPicture source={{ uri: capturedImage }} />
           <ButtonRePicture >
@@ -75,8 +69,22 @@ export default function Cam({ route }) {
           </ButtonRePicture>
         </ViewPicture>
       )}
-
-    </View >
+      <RNCamera
+        ref={cameraRef}
+        style={{ flex: 1 }}
+        type={type}
+        flashMode={RNCamera.Constants.FlashMode.off}
+      />
+      <Buttons >
+        <ButtonPicture onPress={toggleCameraType}>
+          <Ionicons name="camera-reverse-outline" size={30} color="white" />
+        </ButtonPicture>
+        <ButtonPicture onPress={takePicture}>
+          <Ionicons name="camera-outline" size={40} color="white" />
+        </ButtonPicture>
+        <Text style={styles.text}></Text>
+      </Buttons>
+    </View>
   )
 }
 const styles = StyleSheet.create({
