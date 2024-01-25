@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { ButtonPicture, ButtonRePicture, Buttons, ImagemPicture, ViewPicture } from './styled';
@@ -11,7 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 export default function Cam({ route }) {
   const cameraRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [type, setType] = useState(RNCamera.Constants.Type.back)
   const navigation = useNavigation()
   const { param } = route.params;
 
@@ -22,11 +21,6 @@ export default function Cam({ route }) {
       setCapturedImage(data.uri);
     }
   };
-
-  function toggleCameraType() {
-    setType(current => (current ===  RNCamera.Constants.Type.back ? CameraType.front : CameraType.back));
-  }
-
 
 
   async function saveImage() {
@@ -55,7 +49,7 @@ export default function Cam({ route }) {
 
   return (
     <View style={styles.container}>
-       {capturedImage && (
+      {capturedImage && (
         <ViewPicture >
           <ImagemPicture source={{ uri: capturedImage }} />
           <ButtonRePicture >
@@ -72,13 +66,11 @@ export default function Cam({ route }) {
       <RNCamera
         ref={cameraRef}
         style={{ flex: 1 }}
-        type={type}
+        type={RNCamera.Constants.Type.back}
         flashMode={RNCamera.Constants.FlashMode.off}
       />
       <Buttons >
-        <ButtonPicture onPress={toggleCameraType}>
-          <Ionicons name="camera-reverse-outline" size={30} color="white" />
-        </ButtonPicture>
+        <Text style={styles.text}></Text>
         <ButtonPicture onPress={takePicture}>
           <Ionicons name="camera-outline" size={40} color="white" />
         </ButtonPicture>
